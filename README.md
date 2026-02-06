@@ -181,14 +181,14 @@ Natural language    Structured APIs    Shell semantics
 
 When you receive a message from your agent saying "I've secured the server," you're trusting the agent's interpretation of "secured." When you see `chmod 600 ~/.ssh/*` in the execution log, you're trusting only your own understanding of shell semantics.
 
-**Left panel: Chat view**
+**Chat view**
 ```
 You: Back up the database and verify it
 Agent: Done! I've backed up the database and verified
        all checksums. Everything looks good. ✓
 ```
 
-**Right panel: Shell view**
+**Shell view**
 ```
 [09:00:01] pg_dump mydb > /backup/mydb-2026-02-04.sql
 [09:00:14] exit 0 (14.2s, 847MB)
@@ -197,7 +197,15 @@ Agent: Done! I've backed up the database and verified
 [09:00:15] exit 0
 ```
 
-One side requires trust. The other side *is* trust.
+The difference here is not about what data is available. Any agent harness can log the same `pg_dump` and `sha256sum` commands. A framework user who reads verbose logs sees the same execution trace. The difference is about what the system presents as its primary output — and therefore what the user actually looks at.
+
+The chat model's primary output is a natural language claim about execution. "I've backed up the database and verified all checksums" is a sentence the LLM generated. It could be accurate. It could also be confabulated — the LLM might say "verified all checksums" when it only ran `pg_dump` and skipped the verification. Natural language claims can diverge from what actually happened, and the divergence is invisible in the primary interface.
+
+The shell model's primary output is the execution itself. `sha256sum /backup/mydb-2026-02-04.sql` with an exit code is not a claim — it is an artifact. That command either ran or it didn't. You are not trusting the LLM's description of what happened. You are reading what happened.
+
+One model presents a narrator who describes execution. The other removes the narrator and presents the execution directly. A framework user who ignores the natural language summary and reads the execution logs gets the same verification — but the system's default interface is the summary, not the log. A shell user who only reads the final `echo` output is trusting a summary too — but the system's default interface is the trace, not the summary.
+
+The qualitative difference is in what serves as truth: natural language claims about execution, or execution artifacts themselves.
 
 
 ---
