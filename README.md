@@ -203,26 +203,7 @@ One side requires trust. The other side *is* trust.
 
 ## The Convergence Evidence
 
-Between December 2024 and February 2026, multiple independent sources arrived at similar conclusions:
-
-**Anthropic** (Dec 2024): "The most successful implementations weren't using complex frameworks or specialized libraries. Instead, they were building with simple, composable patterns."
-
-**Vercel** (Jan 2026): "We replaced most of the custom tooling in our internal agents with a filesystem tool and a bash tool."
-
-**Fly.io** (Jan 2026): "Ephemeral sandboxes are obsolete. Agents want computers."
-
-**Ptacek** (2025): "This is fucking nuts. Do you see how nuts this is?" — on watching an LLM autonomously compose tool calls. Then building the entire agent in a few hundred lines of Python.
-
-**Shrivu Shankar** (Jan 2026): "The most effective agents are solving non-coding problems by using code, with a consistent, domain-agnostic harness."
-
-The pattern across all sources:
-
-1. Filesystem as context substrate — not databases, not vector stores, not custom protocols
-2. Bash as universal tool interface — not function calling, not MCP, not framework-specific bindings
-3. Simplicity over sophistication — not multi-agent orchestration, not complex planning algorithms
-4. Computers, not sandboxes — persistent, modifiable environments
-
-The design space has an attractor, and multiple independent observers have found it. The attractor is Unix.
+Between December 2024 and February 2026, multiple independent sources arrived at the same architectural conclusions. The design space has an attractor, and these observers found it independently. The attractor is Unix.
 
 ---
 
@@ -292,28 +273,56 @@ The conceptual mapping between tiers is clean because both Shell Agentics and BE
 The oracle model — LLM as oracle, script/supervisor as gatekeeper — should be the default at every tier.
 
 
-## Seven Proposed Principles
+## Seven Principles
 
 ### 1. Agents Want Computers, Not Containers
+
 Persistent storage. No arbitrary death. The ability to modify their own environment. Give agents durable, checkpointable computers.
 
+> "They don't want containers. They don't want 'sandboxes'. They want computers."
+> — Kurt Mackey, Fly.io ([Code and Let Live](https://fly.io/blog/code-and-let-live/), Jan 2026)
+
 ### 2. The Filesystem Is the Context Substrate
+
 The context window is precious and finite. Disk is nearly unlimited. Don't stuff everything into the context window. Let agents navigate filesystems.
 
+> "Maybe the best architecture is almost no architecture at all. Just filesystems and bash."
+> — Ashka Stephen, Vercel ([How to Build Agents with Filesystems and Bash](https://vercel.com/blog/how-to-build-agents-with-filesystems-and-bash), Jan 2026)
+
 ### 3. Agents Solve Non-Coding Problems by Writing Code
+
 Instead of 50 sequential tool calls, the agent writes a script. More token-efficient, more flexible, closer to how humans work.
 
+> "The most effective agents are solving non-coding problems by using code, with a consistent, domain-agnostic harness."
+> — Shrivu Shankar ([Building Multi-Agent Systems Part 3](https://blog.sshh.io/p/building-multi-agent-systems-part-c0c), Jan 2026)
+
 ### 4. Context Engineering > Prompt Engineering
+
 The system prompt is one layer. What matters is the total state at inference: system prompt, tool definitions, conversation history, files on disk, current query. Think in environments, not prompts.
 
+> "Building with language models is becoming less about finding the right words and phrases for your prompts, and more about answering the broader question of 'what configuration of context is most likely to generate our model's desired behavior?'"
+> — Anthropic Applied AI team ([Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents), Sep 2025)
+
 ### 5. Transparency Over Abstraction
-If you can't `cat` it, be suspicious. Bash scripts over compiled binaries. Markdown scripts over proprietary formats. SQLite over SaaS data stores. Git repos over vendor lock-in.
+
+If you can't `cat` it, be suspicious. Bash scripts over compiled binaries. Markdown over proprietary formats. SQLite over SaaS data stores. Git repos over vendor lock-in.
+
+> "Frameworks can help you get started quickly, but don't hesitate to reduce abstraction layers and build with basic components as you move to production."
+> — Erik Schluntz & Barry Zhang, Anthropic ([Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents), Dec 2024)
 
 ### 6. Separation of Mechanism and Policy
+
 The LLM's capability is mechanism. The system prompt, tool availability, guardrails, and script files are policy. Don't bake policy into mechanism. Express domain logic through context.
 
+> "The agent and its tool execution run on separate compute. You trust the agent's reasoning, but the sandbox isolates what it can actually do."
+> — Ashka Stephen, Vercel ([How to Build Agents with Filesystems and Bash](https://vercel.com/blog/how-to-build-agents-with-filesystems-and-bash), Jan 2026)
+
 ### 7. Checkpoint/Restore as First-Class Primitive
+
 Long-horizon tasks exhaust context windows. Agent state drifts. You need compaction, checkpointing, and restore. Version control isn't just for code — it's for compute.
+
+> "Checkpoints are so fast we want you to use them as a basic feature of the system and not as an escape hatch when things go wrong; like a git restore, not a system restore."
+> — Thomas Ptacek, Fly.io ([The Design & Implementation of Sprites](https://fly.io/blog/design-and-implementation/), Jan 2026)
 
 
 ## Roadmap
