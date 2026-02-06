@@ -10,7 +10,7 @@ The shell is the control plane of agentic architecture.
 
 ---
 
-## All roads lead to Unix
+## All Roads Lead to Unix
 
 The Unix philosophy advocates for focused tools, composition, text as universal interface, persistence via files, and separation of mechanism and policy. This is optimal for agent architectures. The field is rediscovering this through painful trial and error, arriving at primitives that Unix established decades ago. The Unix philosophy is the only computing philosophy that has scaled across every paradigm shift. When agent state is files and coordination is streams, reproducibility is trivial and instrumentation is free.
 
