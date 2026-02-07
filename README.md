@@ -1,6 +1,12 @@
-# Shell Agentics
+# Its Just Shell
 
-Shell Agentics is the idea that process hierarchies, file descriptors, text streams, and exit codes provide the optimal abstraction layer for agent coordination. It is also a proof of concept toolkit of composable Bash primitives that demonstrates this thesis through working code.
+This document presents the idea that process hierarchies, file descriptors, text streams, and exit codes provide the optimal abstraction layer for agent coordination. Unix and the shell provides vocabulary for design decisions that most agent systems make implicitly — and makes them explicit, composable, and customizable per-agent.
+
+The decision of how much control to give an LLM becomes a conscious design decision made per agent, based on task requirements and trust tolerance, and makeable by editing ten lines of bash.
+
+Ideally this document should function as the architectural prompt and north star to build agentic systems from scratch using these patterns and any LLM CLI tool (llm, raw curl to an API endpoint, or equivalent).
+
+This document is accompanied by examples of agent architectures that explore the thesis through working code.
 
 ## All Roads Lead to Unix
 
