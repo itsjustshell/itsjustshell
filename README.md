@@ -1,33 +1,55 @@
 # Its Just Shell
 
-This document presents the idea that process hierarchies, file descriptors, text streams, and exit codes provide the optimal abstraction layer for agent coordination. Unix and the shell provides vocabulary for design decisions that most agent systems make implicitly — and makes them explicit, composable, and customizable per-agent.
+This document presents the idea that Unix and the shell provide vocabulary for agent design decisions that most agent systems make implicitly. This enables design decisions to become explicit, composable, inspectable, observable, and customizable per-agent. Process hierarchies, file descriptors, text streams, and exit codes provide the optimal abstraction layer for secure agent coordination, and they come built into the terminal. The terminal, an interpreter that orchestrates tools, is the prototype of an agentic interface, whule Unix is the architecture, and the shell is the prompt.
 
-The decision of how much control to give an LLM becomes a conscious design decision made per agent, based on task requirements and trust tolerance, and makeable by editing ten lines of bash.
-
-Ideally this document should function as the architectural prompt and north star to build agentic systems from scratch using these patterns and any LLM CLI tool (llm, raw curl to an API endpoint, or equivalent).
-
-This document is accompanied by examples of agent architectures that explore the thesis through working code.
+This document is accompanied by examples of agent architectures that explore the thesis through working code. 
 
 ## All Roads Lead to Unix
 
-The Unix philosophy advocates for focused tools, composition, text as universal interface, persistence via files, and separation of mechanism and policy. This is optimal for agent architectures, and the field is discovering this progressively through trial and error, reverse engineering primitives that Unix established decades ago. The Unix philosophy is the only computing philosophy that has scaled across every paradigm shift. 
+The Unix philosophy advocates for focused tools, composition, text as universal interface, persistence via files, and separation of mechanism and policy. This is optimal for agent architectures and something the field is discovering progressively through trial and error, reverse engineering primitives that Unix established decades ago. The Unix philosophy is the only computing philosophy that has scaled across every paradigm shift, for good reason. 
 
-When agent state is files and coordination is streams, reproducibility is trivial, instrumentation is free, and how much the LLM controls becomes a decision you make per agent.
+When agent state is files and coordination is streams, reproducibility is trivial, instrumentation is free, and how much control is given to the LLM is decided per agent.
 
-### The Six Primitives
+## The Ground Floor
 
-| Primitive | Agent Equivalent |
+Joel Spolsky's Law of Leaky Abstractions (2002): "All non-trivial abstractions, to some degree, are leaky." "The abstractions save us time working, but they don't save us time learning." 
+
+You eventually have to understand the layer underneath, because that's where you end up when leaky abstractions break. 
+
+Agent frameworks are abstractions. They abstract away processes, files, text streams, environment variables, and tool dispatch — they abstract away Unix. The debugging always happens at the Unix layer because that is the foundational layer beneath. The Unix layer is already the right level of abstraction for the problem. The framework isn't saving you time working *or* time learning, because the abstraction it provides — coordinating processes that exchange text — is exactly what the shell does natively.
+
+Starting at the shell means there's no layer to leak through to. When something breaks, you're already at the ground floor. `set -x` shows you every command. `cat` shows you every file. `ps` shows you every process. The debugging tools are the building tools. There is no distance between the abstraction and the implementation because there is no abstraction.
+
+This doesn't mean abstractions are never useful. If your agent system grows to need Elixir/OTP supervision trees or Python's async ecosystem, those abstractions earn their weight by solving problems the shell genuinely can't (see "Where Bash Breaks" below). The claim is narrower: for the core problem of agent coordination — routing text between LLM calls, managing state in files, composing workflows from tools — the shell is the ground floor, and the ground floor is sufficient.
+
+## The Only New Primitive
+
+An LLM is a pure function: text in, text out. The only new primitive required is a way to call an LLM from the command line and get text back on stdout.
+
+```bash
+cat error.log | llm -s "What service is failing?"
+```
+
+This exists in Simon Willison's [`llm`](https://github.com/simonw/llm), bundled with a plugin ecosystem supporting hundreds of models. Raw `curl` to the Anthropic or OpenAI API does it with nothing installed at all. System prompts are just files you `cat` into the call.
+
+Everything else — logging, memory, audit, coordination — is already Unix. Files are memory. Append is logging. `grep` and `jq` are audit. Directories are namespaces. Cron is scheduling. Pipes are composition. `chmod +x` is the plugin system.
+
+The six concepts that matter have been battle tested for fifty years:
+
+| Concept | Agent Equivalent |
 |---|---|
 | Processes | The unit of isolation. Each agent is a process. |
 | Files | The unit of state. Context, memory, and learnings are files. |
 | Executables | The unit of capability. An agent's skill set is its `$PATH`. |
 | Text streams | The unit of communication. Pipes compose agents. |
 | Exit codes | The unit of verification. Success, failure, needs-input. |
-| Mechanism/policy separation | The organizing principle. Same LLM, different soul file, different agent. |
+| Mechanism/policy separation | The organizing principle. Same LLM, different system prompt, different agent. |
+
+Every generation produces new coordination protocols — CORBA in the '90s, gRPC in the '10s, MCP and Skills today — each requiring ecosystem buy-in: server implementations, client libraries, schema definitions, capability negotiation. The shell requires only: can you emit text?
 
 ## The Shell as Control Plane
 
-The terminal is a 50-year-old prototype of an agentic interface. The shell is an interface for a human to issue natural-ish language commands to an interpreter that orchestrates tools. Understanding it is understanding the design space that AI agents now inhabit. The shell is the control plane of agentic architecture.
+The shell is the control plane of agentic architecture.
 
 When you want to observe an agent's actions, you check the execution trace. Every command, every decision, every timestamp is inspectable with Unix tools. 
 
