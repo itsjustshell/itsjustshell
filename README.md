@@ -1,6 +1,8 @@
 # Its Just Shell
 
-This document advocates that Unix and the shell enable agent architectures to become explicit, composable, inspectable, observable, and customizable per agent. Process hierarchies, file descriptors, text streams, and exit codes provide the optimal abstraction layer for secure agent coordination, and they come built right into the shell. The terminal is an interpreter that orchestrates tools, the prototypal agentic harness, while Unix is the substrate, and the shell is the interface.
+This document proposes that Unix and the shell provide a practical foundation for building and profiling AI agent architectures, enabling them to become explicit and inspectable, easily composed, and readily observed. Process hierarchies, file descriptors, text streams, and exit codes provide robust abstractions for agent coordination, all native to the environment. The shell is the prototypical orchestration layer; Unix itself provides the underlying substrate of processes, files, and I/O streams.
+
+"Unix and the shell represent a sufficient substrate and integration layer for building agent architectures, enabling external capabilities—vector stores, distributed tracers, semantic caches—to be integrated as composable, inspectable components."
 
 ## All Roads Lead to Unix
 
