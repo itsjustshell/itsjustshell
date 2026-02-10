@@ -198,7 +198,7 @@ A content pipeline where research is LLM-driven (explore this topic, follow inte
 
 A multi-agent system where the research agent is LLM-driven (low stakes, high exploration value) and the deployment agent is script-driven (high stakes, low tolerance for surprise), coordinating through files in a shared directory.
 
-To build any of these in a framework that couples to LLM-driven control, you'd need to build Unix-like primitives within that framework — subprocesses, file coordination, script-controlled sequencing. At which point you've rebuilt the shell inside the framework. The thesis is: skip the intermediary.
+To build any of these in a framework that couples to LLM-driven control, you'd need to build Unix-like primitives within that framework — subprocesses, file coordination, script-controlled sequencing. At which point you've rebuilt the shell inside the framework. 
 
 ---
 
@@ -210,7 +210,7 @@ This thesis does not prohibit natural language agent coordination. It asserts a 
 - **Execution layer:** Shell-semantic. Actions must be commands, file operations, or processes with observable effects.
 - **Verification layer:** Shell-inspectable. Ground truth is the execution trace, not the conversation about it.
 
-When NL serves as coordination, execution, *and* verification — when "doing something" means "saying you did it" — the system loses its ground floor. Agents are the first software that needs to be inspected by other agents. Natural language output cannot be programmatically verified without another LLM — turtles all the way down. Shell output can be grep'd, diff'd, hashed. The inspection chain terminates.
+When NL serves as coordination, execution, *and* verification — when "doing something" means "saying you did it" — the system loses its ground floor. Agents are the first software that needs to be inspected by other agents. Natural language output cannot be programmatically verified without another LLM. Shell output can be grep'd, diff'd, hashed. The inspection chain terminates.
 
 How well this separation holds depends on the control model:
 
@@ -218,7 +218,7 @@ In **script-driven** mode, the separation is enforced by construction. The LLM o
 
 In **LLM-driven** mode, the separation requires discipline. The LLM participates in execution decisions — it requests tools, chooses actions. The logging primitives capture what happened, so verification remains possible. But the deliberation and execution layers are no longer structurally separated. The LLM's reasoning about *why* it chose a tool and the tool's execution are interleaved in the same loop. This is manageable, but it's a practice you maintain rather than a guarantee you inherit.
 
-**Let agents chat about what to do. Log what they actually did.** In script-driven mode, this is guaranteed. In LLM-driven mode, it's a discipline.
+**Let agents chat about what to do. Log what they actually did.** In script-driven mode, this is guaranteed. In LLM-driven mode, it's an optional discipline.
 
 ---
 
@@ -232,7 +232,7 @@ Natural language    Structured APIs    Shell semantics
  interpretation)     implementation)    inspection)
 ```
 
-When you receive a message from your agent saying "I've secured the server," you're trusting the agent's interpretation of "secured." When you see `chmod 600 ~/.ssh/*` in the execution log, you're trusting only your own understanding of shell semantics.
+When you receive a message from your agent saying "I've secured the server," you're trusting the agent's interpretation of "secured." When you see `chmod 600 ~/.ssh/*` in the execution log, you're trusting only your own understanding of shell semantics - or, your supervising agent's understanding of them.
 
 **Left panel: Chat view**
 ```
@@ -256,7 +256,7 @@ One side requires trust. The other side *is* trust.
 
 **LLM-driven** mode gives you a logged version of the left panel. The audit trail records every tool request and every result. You can reconstruct what happened. But the LLM made every tool selection decision, and you're reading the trace to understand choices that were made opaquely, inside the LLM's context window, at runtime. The execution log tells you *what* happened. Understanding *why* requires trusting the LLM's reasoning or inferring it from the sequence.
 
-The key distinction is not observability — both modes can be logged equally well. The distinction is *inspectability*. A script-driven workflow can be inspected before it runs. You read the script. You know what it will do. An LLM-driven workflow can only be inspected after it runs. You read the logs. You learn what it did.
+The key distinction is not observability — both modes can be logged equally well. The distinction is *inspectability*. A script-driven workflow can be inspected before and after it runs. You read the script. You know what it will do. An LLM-driven workflow can only be inspected after it runs. You read the logs. You learn what it did.
 
 ---
 
@@ -312,11 +312,11 @@ As AI compresses lower-order work toward zero time, valuable human contribution 
 
 Climbing the derivative stack requires infrastructure that supports composition, observation, and iteration. Each layer needs to observe and control the layer below it.
 
-LLM-driven agents are powerful at the 0th order — they do tasks. But they resist composition into higher-order systems. The workflow is decided at runtime, opaquely, inside the LLM's context window. You can log what happened and study the logs, but the workflow itself isn't an artifact you can version, diff, or systematically improve. You can't script what you can't predict. Building a 2nd-order system that optimizes LLM-driven agents means analyzing logs and adjusting prompts — indirect, lossy, slow.
+LLM-driven agents are powerful at the 0th order — they do tasks. But they resist composition into higher-order systems. The workflow is decided at runtime, opaquely, inside the LLM's context window. You can log what happened and study the logs, but the workflow itself isn't an artifact you can version, diff, or systematically improve. You can't script what you can't predict. Building a 2nd-order system that optimizes LLM-driven agents means analyzing logs and adjusting prompts — indirect, lossy, slow. However, in shell, you can contain this runtime opaqueness to the `llm` primitive, not relegate the entire harness to a monolithic TUI or IDE GUI that routes you away from thinking in terms of inspectability about the components that in fact are.
 
 Script-driven agents are artifacts at every order. The skill script is a program. Building a 2nd-order system means writing a script that runs and evaluates other scripts. Building a 3rd-order system means automating that evaluation. The derivative stack is natural because every layer is a script observing and controlling scripts.
 
-Practitioners are hitting this ceiling today. They want to build eval pipelines but can't easily capture agent outputs in batch — the agent expects interactive input. They want to A/B test prompts at scale but can't run agents non-interactively. They want to compose multi-agent workflows but each agent demands a human in the loop. These are symptoms of LLM-driven architectures resisting composition.
+Practitioners are hitting this ceiling today. They want to build eval pipelines but can't easily capture agent outputs in batch — the agent expects interactive input. They want to A/B test prompts at scale but can't run agents non-interactively. These are symptoms of LLM-driven architectures resisting composition.
 
 This doesn't mean LLM-driven agents can't participate in higher-order systems. They can — when wrapped in script-driven orchestration. The 1st-order script invokes the 0th-order LLM-driven agent, captures its output, evaluates it, and iterates. The LLM-driven agent does the creative work. The script-driven wrapper makes it composable. This is the mixed-mode composition described earlier, applied to the derivative stack.
 
