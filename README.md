@@ -6,7 +6,7 @@
 
 "I think your thesis is actually about survival through simplicity, not optimality through architecture. " - Claude
 
-Unix primitives are sufficient for a class of agent coordination problems, and many frameworks are premature abstractions over a substrate people don't yet understand. Embracing Unix composability also introduces a methodology for producing reliable knowledge with agents.
+Unix primitives are sufficient for a class of agent coordination problems, and many frameworks are premature abstractions over a substrate people don't yet understand. Embracing Unix composability introduces a methodology for producing reliable architecture, and even potentially knowledge, with agents.
 
 This document proposes that Unix and the shell provide a practical foundation for building and profiling local AI agent architectures. Introducing generic, uniform data representations enables them to become explicit, easily composed, and readily observable agentic systems. Process hierarchies, file descriptors, text streams, and exit codes provide robust abstractions for agent coordination, all native to the environment. The shell is the prototypical orchestration layer; Unix itself provides the underlying substrate of processes, files, and I/O streams. External capabilities, such as vector stores, distributed tracers, and semantic caches can be integrated as composable and inspectable components.
 
